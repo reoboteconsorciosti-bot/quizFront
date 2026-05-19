@@ -1,43 +1,29 @@
-# Build version: 1.0.4 - Frontend Folder Context
-# Estagio 1: Build
-FROM node:20-slim AS build
+# Build version: 1.0.5 - Frontend Nginx Conf Fix
+FROM node:20 AS build
 
 WORKDIR /app
 
-# Como o Easypanel está entrando na pasta /frontend, 
-# os arquivos já estão na raiz do contexto de build.
+# Instalação limpa
 COPY package*.json ./
-
-# Instalar dependencias
 RUN npm install
 
-# Copiar o restante do codigo
+# Cópia e Build
 COPY . .
+RUN npm run build
 
-# Build do projeto
-RUN npm run build && ls -la dist
-
-# Estagio 2: Servir com Nginx
+# Produção com Nginx
 FROM nginx:stable-alpine
 
-# Remover configuração padrão do Nginx para evitar que ela sobreponha a nossa
-RUN rm /etc/nginx/conf.d/default.conf
+# Remove configurações padrão
+RUN rm -rf /etc/nginx/conf.d/*
 
-# Copiar os arquivos buildados do estagio anterior para o diretorio do Nginx
+# Copia nossa configuração customizada
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copia os arquivos do build (Vite gera na pasta dist)
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Criar uma nova configuração do Nginx para o SPA
-RUN printf "server { \n\
-    listen 80; \n\
-    server_name localhost; \n\
-    location / { \n\
-        root /usr/share/nginx/html; \n\
-        index index.html index.htm; \n\
-        try_files \$uri \$uri/ /index.html; \n\
-    } \n\
-}" > /etc/nginx/conf.d/default.conf
-
-# Garantir permissões de leitura
+# Ajuste de permissões
 RUN chmod -R 755 /usr/share/nginx/html
 
 EXPOSE 80
