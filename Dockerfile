@@ -1,13 +1,13 @@
-# Build version: 1.1.2 - TanStack Start Vite Preview (Docker/Easypanel)
+# Build version: 1.1.5 - Pure Node Serve (No Nginx, No Vite Proxy)
 FROM node:20-slim AS build
 
 WORKDIR /app
 
-# Instalação de dependências
+# Copiar apenas os arquivos de dependência
 COPY package*.json ./
 RUN npm install
 
-# Copia tudo e faz o build
+# Copiar o código e buildar
 COPY . .
 RUN npm run build
 
@@ -16,17 +16,15 @@ FROM node:20-slim
 
 WORKDIR /app
 
-ENV NODE_ENV=production
-ENV HOST=0.0.0.0
-ENV PORT=3000
+# Instalar o pacote 'serve' para entregar os arquivos estáticos sem travas de host
+RUN npm install -g serve
 
-# Copiamos o build e as dependências necessárias
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/package*.json ./
-COPY --from=build /app/node_modules ./node_modules
+# Copiar a pasta dist/client gerada pelo build
+COPY --from=build /app/dist/client ./dist/client
 
+# Expomos a porta 3000
 EXPOSE 3000
 
-# Importante: o log "Accepting connections at http://localhost:3000" pode indicar bind em localhost.
-# Forçamos bind em 0.0.0.0 via --host para o Easypanel alcançar o container.
-CMD ["sh", "-c", "./node_modules/.bin/vite preview --host 0.0.0.0 --port ${PORT}"]
+# O comando serve não faz checagem de host como o Vite Preview
+# Isso vai matar o erro de "Blocked request" de uma vez por todas
+CMD ["serve", "-s", "dist/client", "-l", "3000"]
