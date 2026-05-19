@@ -13,8 +13,11 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
-    preview: {
-      allowedHosts: ["reobote-mapadaconquistafront.to0i0r.easypanel.host"],
+      server: {
+        allowedHosts: true as any,
+      },
+      preview: {
+        allowedHosts: true as any,
+      },
     },
-  },
 });
