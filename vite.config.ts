@@ -14,7 +14,7 @@ export default defineConfig({
   },
   vite: {
     preview: {
-      allowedHosts: true,
+      allowedHosts: ["reobote-mapadaconquistafront.to0i0r.easypanel.host"],
     },
   },
 });
