@@ -1,4 +1,4 @@
-# Build version: 1.0.9 - Final Port 3000 Fix
+# Build version: 1.1.0 - Vite Preview Official
 FROM node:20-slim AS build
 
 WORKDIR /app
@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# Copia o código e faz o build
+# Copia tudo e faz o build
 COPY . .
 RUN npm run build
 
@@ -15,13 +15,13 @@ RUN npm run build
 FROM node:20-slim
 
 WORKDIR /app
-RUN npm install -g serve
 
-# Copiamos apenas o necessário para servir o cliente
-COPY --from=build /app/dist/client ./dist/client
+# Copiamos TUDO para garantir que o Vite Preview tenha o contexto necessário
+COPY --from=build /app ./
 
 # Expomos a porta 3000
 EXPOSE 3000
 
-# Comando para rodar o serve na porta 3000, apontando para a pasta client e aceitando conexões externas
-CMD ["serve", "-s", "dist/client", "-l", "3000"]
+# O comando 'vite preview' vai servir a pasta dist corretamente
+# O --host garante que o Easypanel consiga acessar o container
+CMD ["npx", "vite", "preview", "--host", "0.0.0.0", "--port", "3000"]
