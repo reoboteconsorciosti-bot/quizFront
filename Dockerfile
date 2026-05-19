@@ -1,14 +1,13 @@
-# Build version: 1.0.8 - Final Frontend Folder Context
+# Build version: 1.0.9 - Final Port 3000 Fix
 FROM node:20-slim AS build
 
 WORKDIR /app
 
-# Como o Easypanel está entrando na pasta /frontend, 
-# os arquivos já estão na raiz do contexto de build.
-# NÃO use "frontend/" nos caminhos de COPY.
+# Instalação de dependências
 COPY package*.json ./
 RUN npm install
 
+# Copia o código e faz o build
 COPY . .
 RUN npm run build
 
@@ -18,11 +17,11 @@ FROM node:20-slim
 WORKDIR /app
 RUN npm install -g serve
 
-# Copiar a pasta dist/client gerada pelo TanStack Start
+# Copiamos apenas o necessário para servir o cliente
 COPY --from=build /app/dist/client ./dist/client
 
-# Expor a porta 3000
+# Expomos a porta 3000
 EXPOSE 3000
 
-# Rodar o serve apontando para a pasta client
+# Comando para rodar o serve na porta 3000, apontando para a pasta client e aceitando conexões externas
 CMD ["serve", "-s", "dist/client", "-l", "3000"]
