@@ -18,11 +18,11 @@ FROM node:20-slim
 WORKDIR /app
 RUN npm install -g serve
 
-# Copiar apenas a pasta dist do estágio anterior
-COPY --from=build /app/dist ./dist
+# Copiar a pasta dist/client gerada pelo TanStack Start
+COPY --from=build /app/dist/client ./dist/client
 
-# Expor a porta 3000 (padrão do serve)
+# Expor a porta 3000
 EXPOSE 3000
 
-# Comando para rodar o serve na porta 3000, apontando para a pasta dist e tratando SPAs (-s)
-CMD ["serve", "-s", "dist", "-l", "3000"]
+# Rodar o serve apontando para a pasta client
+CMD ["serve", "-s", "dist/client", "-l", "3000"]
