@@ -1,28 +1,29 @@
-# Build version: 1.0.2 - Frontend Nginx
-# Estagio 1: Build do Frontend
-FROM node:20-slim AS build-frontend
+# Build version: 1.0.3 - Frontend Fixed Path
+# Estagio 1: Build
+FROM node:20-slim AS build
 
 WORKDIR /app
 
-# Copiar arquivos de dependencia do frontend
-COPY frontend/package*.json ./frontend/
+# Copiar arquivos de dependencia (usando caminho relativo a raiz do repo)
+COPY frontend/package*.json ./
 
-# Instalar dependencias do frontend
-RUN cd frontend && npm install
+# Instalar dependencias
+RUN npm install
 
 # Copiar o restante do codigo do frontend
-COPY frontend/ ./frontend/
+COPY frontend/ .
 
-# Build do frontend (gera a pasta frontend/dist)
-RUN cd frontend && npm run build
+# Build do projeto
+RUN npm run build
 
 # Estagio 2: Servir com Nginx
 FROM nginx:stable-alpine
 
 # Copiar os arquivos buildados do estagio anterior para o diretorio do Nginx
-COPY --from=build-frontend /app/frontend/dist /usr/share/nginx/html
+# O Vite gera a pasta dist dentro de /app no container
+COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copiar uma configuracao customizada do Nginx para lidar com roteamento SPA
+# Configuração SPA Nginx
 RUN echo 'server { \
     listen 80; \
     location / { \
@@ -32,8 +33,6 @@ RUN echo 'server { \
     } \
 }' > /etc/nginx/conf.d/default.conf
 
-# Expor a porta 80
 EXPOSE 80
 
-# Rodar o Nginx
 CMD ["nginx", "-g", "daemon off;"]
