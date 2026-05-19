@@ -1,31 +1,29 @@
-# Build version: 1.0.5 - Frontend Nginx Conf Fix
-FROM node:20 AS build
+# Build version: 1.0.6 - Switching from Nginx to Node Serve
+FROM node:20-slim AS build
 
 WORKDIR /app
 
-# Instalação limpa
+# Copiar arquivos de dependencia
 COPY package*.json ./
 RUN npm install
 
-# Cópia e Build
+# Copiar o restante do codigo e fazer o build
 COPY . .
 RUN npm run build
 
-# Produção com Nginx
-FROM nginx:stable-alpine
+# Estágio de Produção
+FROM node:20-slim
 
-# Remove configurações padrão
-RUN rm -rf /etc/nginx/conf.d/*
+WORKDIR /app
 
-# Copia nossa configuração customizada
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Instalar o pacote 'serve' globalmente para servir arquivos estáticos
+RUN npm install -g serve
 
-# Copia os arquivos do build (Vite gera na pasta dist)
-COPY --from=build /app/dist /usr/share/nginx/html
+# Copiar apenas a pasta dist do estágio anterior
+COPY --from=build /app/dist ./dist
 
-# Ajuste de permissões
-RUN chmod -R 755 /usr/share/nginx/html
+# Expor a porta 3000 (padrão do serve)
+EXPOSE 3000
 
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+# Comando para rodar o serve na porta 3000, apontando para a pasta dist e tratando SPAs (-s)
+CMD ["serve", "-s", "dist", "-l", "3000"]
