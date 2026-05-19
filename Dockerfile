@@ -15,23 +15,30 @@ RUN npm install
 COPY . .
 
 # Build do projeto
-RUN npm run build
+RUN npm run build && ls -la dist
 
 # Estagio 2: Servir com Nginx
 FROM nginx:stable-alpine
 
+# Remover configuração padrão do Nginx para evitar que ela sobreponha a nossa
+RUN rm /etc/nginx/conf.d/default.conf
+
 # Copiar os arquivos buildados do estagio anterior para o diretorio do Nginx
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Configuração SPA Nginx para lidar com rotas do React
-RUN echo 'server { \
-    listen 80; \
-    location / { \
-        root /usr/share/nginx/html; \
-        index index.html index.htm; \
-        try_files $uri $uri/ /index.html; \
-    } \
-}' > /etc/nginx/conf.d/default.conf
+# Criar uma nova configuração do Nginx para o SPA
+RUN printf "server { \n\
+    listen 80; \n\
+    server_name localhost; \n\
+    location / { \n\
+        root /usr/share/nginx/html; \n\
+        index index.html index.htm; \n\
+        try_files \$uri \$uri/ /index.html; \n\
+    } \n\
+}" > /etc/nginx/conf.d/default.conf
+
+# Garantir permissões de leitura
+RUN chmod -R 755 /usr/share/nginx/html
 
 EXPOSE 80
 
