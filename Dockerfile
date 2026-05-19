@@ -1,13 +1,13 @@
-# Build version: 1.1.5 - Pure Node Serve (No Nginx, No Vite Proxy)
+# Build version: 1.1.6 - SPA Build (SSR Disabled)
 FROM node:20-slim AS build
 
 WORKDIR /app
 
-# Copiar apenas os arquivos de dependência
+# Instalação de dependências
 COPY package*.json ./
 RUN npm install
 
-# Copiar o código e buildar
+# Copia o código e faz o build (com SSR desativado no vite.config.ts)
 COPY . .
 RUN npm run build
 
@@ -15,16 +15,13 @@ RUN npm run build
 FROM node:20-slim
 
 WORKDIR /app
-
-# Instalar o pacote 'serve' para entregar os arquivos estáticos sem travas de host
 RUN npm install -g serve
 
-# Copiar a pasta dist/client gerada pelo build
+# Copiamos a pasta dist/client. Com SSR desativado, o Vite gera o index.html aqui.
 COPY --from=build /app/dist/client ./dist/client
 
 # Expomos a porta 3000
 EXPOSE 3000
 
-# O comando serve não faz checagem de host como o Vite Preview
-# Isso vai matar o erro de "Blocked request" de uma vez por todas
+# O comando 'serve' não faz checagem de host, eliminando o erro "Blocked request"
 CMD ["serve", "-s", "dist/client", "-l", "3000"]
