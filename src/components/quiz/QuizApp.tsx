@@ -78,7 +78,7 @@ export function QuizApp() {
       const apiUrl =
         import.meta.env.VITE_API_URL ||
         (import.meta.env.PROD
-          ? "https://reobote-mapadaconquistaback.to0i0r.easypanel.host"
+          ? "https://reobote-mapadaconquistback.to0i0r.easypanel.host"
           : "http://localhost:3001");
       console.log("🟢 URL da API usada:", apiUrl);
 
