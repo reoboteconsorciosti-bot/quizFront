@@ -76,6 +76,7 @@ export function QuizApp() {
       const profileName = `Perfil ${PROFILES[finalProfile].name}`;
 
       const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
+      console.log("🟢 URL da API usada:", apiUrl);
 
       const response = await fetch(`${apiUrl}/api/webhook`, {
         method: "POST",
