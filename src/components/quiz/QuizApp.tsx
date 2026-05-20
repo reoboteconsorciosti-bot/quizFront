@@ -75,7 +75,11 @@ export function QuizApp() {
       const finalPhone = cleanPhone.startsWith("55") ? cleanPhone : `55${cleanPhone}`;
       const profileName = `Perfil ${PROFILES[finalProfile].name}`;
 
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
+      const apiUrl =
+        import.meta.env.VITE_API_URL ||
+        (import.meta.env.PROD
+          ? "https://reobote-mapadaconquistaback.to0i0r.easypanel.host"
+          : "http://localhost:3001");
       console.log("🟢 URL da API usada:", apiUrl);
 
       const response = await fetch(`${apiUrl}/api/webhook`, {
@@ -91,7 +95,10 @@ export function QuizApp() {
         }),
       });
 
-      if (!response.ok) throw new Error("Falha ao enviar dados finais");
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Falha ao enviar dados finais: ${response.status} ${errorText}`);
+      }
 
       setStage("success");
     } catch (error) {
