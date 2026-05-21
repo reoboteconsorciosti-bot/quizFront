@@ -10,15 +10,19 @@ type Stage = "intro" | "quiz" | "reveal" | "lead" | "success";
 const objectives = ["Imóvel", "Veículo", "Investimento", "Patrimônio"] as const;
 
 const consultants = [
-  "EDUARDO",
-  "ISABELI",
-  "JESSICA",
-  "JONAS",
-  "KAREN",
-  "KASSIO",
-  "LUCAS ROQUES",
-  "MURILO",
-  "RAPHAEL"
+  "karen.Landgraf",
+  "edson.alves",
+  "jessica.spinola",
+  "eduardo.fujiyama",
+  "lucas.roques",
+  "raphael.lucas",
+  "kassio.gomes",
+  "murilo.silva",
+  "isabeli.munhoz",
+  "jonas.maidana",
+  "lucas.cardoso",
+  "flavio.andrade",
+  "joao.albert",
 ] as const;
 
 export function QuizApp() {
@@ -28,6 +32,7 @@ export function QuizApp() {
     acelerador: 0, estrategico: 0, conservador: 0, visionario: 0, patrimonial: 0,
   });
   const [selected, setSelected] = useState<number | null>(null);
+  const [objetivo, setObjetivo] = useState<string>("");
 
   const [name, setName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -53,8 +58,14 @@ export function QuizApp() {
   const handleSelect = (idx: number) => {
     if (selected !== null) return;
     setSelected(idx);
+    
     const profile = QUESTIONS[step].options[idx].profile;
     setScores((s) => ({ ...s, [profile]: s[profile] + 2 }));
+    
+    if (step === QUESTIONS.length - 1) {
+      setObjetivo(QUESTIONS[step].options[idx].label);
+    }
+    
     setTimeout(() => {
       setSelected(null);
       if (step + 1 < QUESTIONS.length) {
@@ -81,6 +92,7 @@ export function QuizApp() {
           ? "https://reobote-mapadaconquistback.to0i0r.easypanel.host"
           : "http://localhost:3001");
       console.log("🟢 URL da API usada:", apiUrl);
+      console.log("📋 Objetivo selecionado:", objetivo);
 
       const response = await fetch(`${apiUrl}/api/webhook`, {
         method: "POST",
@@ -91,6 +103,7 @@ export function QuizApp() {
           perfil: finalProfile,
           perfil_nome: profileName,
           consultor: consultant,
+          objetivo: objetivo,
           tag: "quiz",
         }),
       });
@@ -128,6 +141,7 @@ export function QuizApp() {
     setName("");
     setWhatsapp("");
     setConsultant("");
+    setObjetivo("");
     setIsSubmitting(false);
   };
 
