@@ -579,16 +579,26 @@ function Success({ primary, onReset }: { primary: ProfileKey; onReset: () => voi
         <strong style={{ color: p.colorVar }}>Perfil {p.name}</strong>.
       </motion.p>
 
-      <div className="mt-8 flex flex-col items-center gap-4">
-        <motion.a
-          href="https://wa.me/" target="_blank" rel="noreferrer"
-          initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75 }}
-          className="btn-hero w-full max-w-xs"
-        >
-          <MessageCircle className="h-4 w-4" />
-          FALAR COM CONSULTOR
-        </motion.a>
+      <motion.div
+        initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75 }}
+        className="mx-auto mt-6 max-w-md rounded-3xl glass p-5 shadow-lg"
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ background: "var(--gradient-primary)" }}>
+            <MessageCircle className="h-5 w-5 text-white" />
+          </div>
+          <div className="text-left">
+            <p className="text-sm font-semibold text-foreground">
+              Seu perfil completo com PDF chegou no seu WhatsApp!
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Verifique suas mensagens
+            </p>
+          </div>
+        </div>
+      </motion.div>
 
+      <div className="mt-8 flex flex-col items-center gap-4">
         <motion.button
           onClick={onReset}
           initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.85 }}
